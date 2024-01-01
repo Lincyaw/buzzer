@@ -25,6 +25,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"buzzer/pkg/ebpf/ebpf"
 	"buzzer/pkg/strategies/parse_verifier/oracle/oracle"
@@ -49,13 +50,19 @@ func (st *StrategyParseVerifierLog) generateAndValidateProgram(e strategies.Exec
 		gen.logMapFd = prog.LogMap()
 		prog.Instructions = gen.Generate(prog)
 		if err != nil {
+			slog.Error("generate program fail", "err", err)
 			return nil, err
 		}
 		byteCode := prog.GenerateBytecode()
 		res, err := e.ValidateProgram(byteCode)
 		if err != nil {
+			slog.Error("program is invalid", "err", err)
 			prog.Cleanup()
 			return nil, err
+		}
+		if !res.GetIsValid() {
+			slog.Info("generated program is not valid", "isvalid", res.IsValid, "log", res.VerifierLog, "fd", res.ProgramFd, "bpf_error", res.BpfError)
+			panic(res.BpfError)
 		}
 
 		if res.GetIsValid() {
@@ -77,7 +84,9 @@ func (st *StrategyParseVerifierLog) generateAndValidateProgram(e strategies.Exec
 func (st *StrategyParseVerifierLog) Fuzz(e strategies.ExecutorInterface, cm strategies.CoverageManager) error {
 	fmt.Printf("running fuzzing strategy %s\n", StrategyName)
 	i := 0
+	fmt.Println("fuck you")
 	for {
+		fmt.Println("fuck you")
 		gen := &Generator{
 			instructionCount: 10,
 			offsetMap:        make(map[int32]int32),
@@ -87,11 +96,12 @@ func (st *StrategyParseVerifierLog) Fuzz(e strategies.ExecutorInterface, cm stra
 		fmt.Printf("Fuzzer run no %d.                               \r", i)
 		i++
 		gr, err := st.generateAndValidateProgram(e, gen)
-
+		slog.Info("generated prmgram")
 		if err != nil {
+			slog.Error("generate and validate program failed", "err", err)
 			return err
 		}
-
+		fmt.Println(gr)
 		// Build a new execution request.
 		logCount := gen.logCount
 		mapDescription := &fpb.ExecutionRequest_MapDescription{
@@ -117,10 +127,13 @@ func (st *StrategyParseVerifierLog) Fuzz(e strategies.ExecutorInterface, cm stra
 			maxAttempts--
 			eR, err := e.RunProgram(executionRequest)
 			if err != nil {
+				slog.Error("run program error", "err", err)
 				return err
 			}
+			fmt.Println(eR)
 
 			if !eR.GetDidSucceed() {
+				slog.Error("execute Program did not succeed")
 				return fmt.Errorf("execute Program did not succeed")
 			}
 			mapElements := eR.GetMapElements()[0].GetElements()

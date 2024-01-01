@@ -30,6 +30,7 @@ import (
 	"unsafe"
 
 	fpb "buzzer/proto/ebpf_fuzzer_go_proto"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -101,6 +102,7 @@ func (e *Executor) ValidateProgram(prog []uint64) (*fpb.ValidationResult, error)
 	}
 	bpfVerifyResult := C.load_bpf_program(unsafe.Pointer(&prog[0]), C.ulong(len(prog)) /*enable_coverage=*/, C.int(cbool) /*coverage_size=*/, C.ulong(coverageSize))
 	res, err := validationProtoFromStruct(&bpfVerifyResult)
+	// slog.Info("verification result", "res", res, "err", err)
 	if err != nil {
 		return nil, err
 	}

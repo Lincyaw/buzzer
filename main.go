@@ -18,6 +18,7 @@ package main
 import (
 	"flag"
 	"log"
+	"log/slog"
 	"os/exec"
 
 	"buzzer/pkg/units/units"
@@ -48,6 +49,7 @@ func main() {
 		outBytes, err := cmd.Output()
 		return string(outBytes), err
 	})
+	slog.Info("starting infomation: ", "runMode", *runMode, "fuzzStrat", *fuzzStrat, "coverageBufferSize", *coverageBufferSize, "metricsThreshold", *metricsThreshold, "vmLinuxPath", *vmLinuxPath, "sourceFilesPath", *sourceFilesPath, "metricsServerAddr", *metricsServerAddr, "metricsServerPort", *metricsServerPort)
 
 	controlUnit := units.ControlUnit{}
 	metricsUnit := units.NewMetricsUnit(*metricsThreshold, *coverageBufferSize, *vmLinuxPath, *sourceFilesPath, *metricsServerAddr, uint16(*metricsServerPort), coverageManager)

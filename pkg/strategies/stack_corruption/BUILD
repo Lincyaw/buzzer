@@ -36,3 +36,18 @@ go_library(
         "//proto:ebpf_fuzzer_go_proto",
     ],
 )
+
+
+go_test(
+    name = "stackcorruption_test",
+    srcs = [
+        "generator_test.go",
+    ],
+    gc_linkopts = [
+        "-linkmode=external",
+        "-extldflags=-static",
+    ],
+    static = "on",
+    embed = [":stackcorruption"],
+    importpath = "buzzer/pkg/strategies/stack_corruption",
+)

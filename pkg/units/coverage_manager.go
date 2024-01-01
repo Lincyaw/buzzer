@@ -16,6 +16,7 @@ package units
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 	"sync"
@@ -72,6 +73,7 @@ func (cm *CoverageManagerImpl) ProcessCoverageAddresses(cov []uint64) (map[uint6
 
 	outString, err := cm.addressToLineFunction(inputString)
 	if err != nil {
+		slog.Error("addressToLine error", "err", err, "inputString",inputString)
 		fmt.Printf("addressToLine error: %v\n", err)
 		return nil, err
 	}
@@ -97,6 +99,7 @@ func (cm *CoverageManagerImpl) ProcessCoverageAddresses(cov []uint64) (map[uint6
 		fileName := fnAndLn[0]
 		lineNumber, err := strconv.Atoi(fnAndLn[1])
 		if err != nil {
+			slog.Error("parsing line number failed", "function and line", line)
 			return nil, err
 		}
 		fullPath := strings.Split(cleanedLine, ":")[0]

@@ -17,6 +17,7 @@ package units
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -85,6 +86,7 @@ func (mu *Metrics) validationResultProcessingRoutine() {
 	for {
 		vres := mu.dequeueValidationResult()
 		if vres == nil {
+			slog.Info("the metric dequeue is nil")
 			time.Sleep(1 * time.Second)
 			continue
 		}
@@ -118,14 +120,17 @@ func (mu *Metrics) shouldCollectDetailedInfo() bool {
 // verification result proto.
 func (mu *Metrics) RecordVerificationResults(vr *fpb.ValidationResult) {
 	if vr.GetIsValid() {
+		slog.Info("the result is valid")
 		mu.metricsCollection.recordValidProgram()
 	}
 
 	if !mu.shouldCollectDetailedInfo() {
+		// slog.Info("now should not get coverage data")
 		return
 	}
 
 	if !vr.GetDidCollectCoverage() {
+		// slog.Info("GetDidCollectCoverage is false")
 		return
 	}
 

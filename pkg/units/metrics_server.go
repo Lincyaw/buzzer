@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -64,12 +65,16 @@ func (ms *MetricsServer) handleFileCoverage(w http.ResponseWriter, req *http.Req
 	file := fileParam[0]
 
 	_, _, coverageInformation := ms.metricsCollection.getMetrics()
+	// if len(coverageInformation) == 0 {
+	// 	slog.Info("there is no coverage")
+	// }
 	var covInfo *CoverageInfo
 	for _, cov := range coverageInformation {
 		if cov.fileName == file {
 			covInfo = &cov
 			break
 		}
+		slog.Info("code coverage files", "filename", cov.fileName)
 	}
 
 	if covInfo == nil {

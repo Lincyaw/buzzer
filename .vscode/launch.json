@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Bazel Go Target",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "program": "${workspaceFolder}/bazel-bin/buzzer_/buzzer", // 替换为你的Bazel目标路径
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
